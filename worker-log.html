@@ -1,98 +1,454 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Worker Log</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore-compat.js"></script>
+    <style>
+        /* Additional modern styles */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #f8f9fa;
+            color: var(--primary);
+        }
+
+        nav {
+            background: var(--primary);
+            padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        nav a {
+            color: var(--light);
+            margin: 0 1.5rem;
+            transition: color 0.3s ease;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            color: var(--secondary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .grid-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-5px);
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h1 i {
+            color: var(--secondary);
+        }
+
+        form {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        input, button, textarea {
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--secondary);
+            outline: none;
+        }
+
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+
+        table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        .delete-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.delete-btn:hover {
+    background: #c0392b;
+}
+
+.delete-btn i {
+    pointer-events: none;
+}
+
+    /* Mobile Responsiveness */
+    @media (max-width: 768px) {
+        .grid-section {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        nav {
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        nav a {
+            display: block;
+            margin: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .container {
+            padding: 1rem;
+        }
+
+        form {
+            grid-template-columns: 1fr;
+        }
+
+        table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .section-card {
+            padding: 1rem;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .summary-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .metric-box {
+            padding: 1rem;
+        }
+
+        input, button {
+            width: 100%;
+            margin: 5px 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+        }
+
+        th, td {
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .section-card h2 {
+            font-size: 1.2rem;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+        }
+    }
+    </style>
 </head>
 <body>
     <nav>
-        <a href="building-info.html">Building Info</a>
-        <a href="worker-log.html">Worker Log</a>
-        <a href="payment-summary.html">Payment Summary</a>
+        <a href="building-info.html"><i class="fas fa-building"></i> Building Info</a>
+        <a href="#" class="active"><i class="fas fa-users"></i> Worker Management</a>
+        <a href="payment-summary.html"><i class="fas fa-chart-bar"></i> Reports</a>
     </nav>
 
     <div class="container">
-        <h1>Worker Log</h1>
+        <h1><i class="fas fa-hard-hat"></i> Construction Management</h1>
         
-        <form id="workerForm">
-            <input type="date" id="date" required>
-            <input type="number" id="masters" placeholder="Master Masons" required>
-            <input type="number" id="helpers" placeholder="Helpers" required>
-            <input type="number" id="masterRate" placeholder="Master Rate" step="0.01" required>
-            <input type="number" id="helperRate" placeholder="Helper Rate" step="0.01" required>
-            <textarea id="note" placeholder="Note (optional)"></textarea>
-            <button type="submit">Submit</button>
-        </form>
+        <div class="grid-section">
+            <!-- Worker Log Section -->
+            <div class="section-card">
+                <h2><i class="fas fa-clipboard-list"></i> Daily Worker Log</h2>
+                <form id="workerForm">
+                    <input type="date" id="date" required>
+                    <input type="number" id="masters" placeholder="Master Masons" required>
+                    <input type="number" id="helpers" placeholder="Helpers" required>
+                    <input type="number" id="masterRate" placeholder="Master Rate" step="0.01" required>
+                    <input type="number" id="helperRate" placeholder="Helper Rate" step="0.01" required>
+                    <textarea id="note" placeholder="Note (optional)" rows="2"></textarea>
+                    <button type="submit"><i class="fas fa-save"></i> Save Entry</button>
+                </form>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Master/Helper</th>
-                    <th>Total Workers</th>
-                    <th>Total Paid</th>
-                    <th>Note</th>
-                </tr>
-            </thead>
-            <tbody id="logBody"></tbody>
-        </table>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Master/Helper</th>
+                            <th>Total Workers</th>
+                            <th>Total Paid</th>
+                            <th>Note</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Payment Summary Section -->
+            <div class="section-card">
+                <h2><i class="fas fa-file-invoice-dollar"></i> Payment Summary</h2>
+                <form id="dateRangeForm">
+                    <input type="date" id="startDate" required>
+                    <input type="date" id="endDate" required>
+                    <button type="submit"><i class="fas fa-calculator"></i> Generate Report</button>
+                </form>
+
+                <div id="summaryResults" style="display: none;">
+                    <h3>Report Period</h3>
+                    <div id="dateRange" class="report-period"></div>
+                    
+                    <div class="summary-grid">
+                        <div class="metric-box">
+                            <label>Total Days</label>
+                            <div class="metric-value" id="totalDays">0</div>
+                        </div>
+                        <div class="metric-box">
+                            <label>Master Masons</label>
+                            <div class="metric-value" id="totalMasters">0</div>
+                        </div>
+                        <div class="metric-box">
+                            <label>Helpers</label>
+                            <div class="metric-value" id="totalHelpers">0</div>
+                        </div>
+                        <div class="metric-box">
+                            <label>Total Workers</label>
+                            <div class="metric-value" id="totalWorkers">0</div>
+                        </div>
+                        <div class="metric-box highlight">
+                            <label>Total Payment</label>
+                            <div class="metric-value" id="totalPayment">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- Original JavaScript remains unchanged -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore-compat.js"></script>
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCpCIHyj6B3mNScU-yPVxsgaFcaLZy4QPc",
-            authDomain: "construction-process-5767b.firebaseapp.com",
-            projectId: "construction-process-5767b",
-            storageBucket: "construction-process-5767b.firebasestorage.app",
-            messagingSenderId: "809606865567",
-            appId: "1:809606865567:web"
+    // Combined Firebase configuration (use one instance)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCpCIHyj6B3mNScU-yPVxsgaFcaLZy4QPc",
+        authDomain: "construction-process-5767b.firebaseapp.com",
+        projectId: "construction-process-5767b",
+        storageBucket: "construction-process-5767b.firebasestorage.app",
+        messagingSenderId: "809606865567",
+        appId: "1:809606865567:web"
+    };
+
+    // Initialize Firebase once
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Authentication check for all protected pages
+    if (!localStorage.getItem('authenticated')) {
+        window.location.href = 'index.html';
+    }
+
+    // Worker Log Functionality
+    document.getElementById('workerForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const workerData = {
+            date: firebase.firestore.Timestamp.fromDate(new Date(e.target.date.value)),
+            masterMasons: parseInt(e.target.masters.value),
+            helpers: parseInt(e.target.helpers.value),
+            masterRate: parseFloat(e.target.masterRate.value),
+            helperRate: parseFloat(e.target.helperRate.value),
+            note: e.target.note.value || null
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        try {
+            await db.collection('workerLogs').add(workerData);
+            e.target.reset();
+        } catch (error) {
+            console.error('Error adding document: ', error);
+        }
+    });
 
-        // Form submission
-        document.getElementById('workerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+// Real-time Worker Log Updates 
+db.collection('workerLogs').onSnapshot((snapshot) => {
+    const tbody = document.getElementById('logBody');
+    if(!tbody) return;
+    
+    tbody.innerHTML = '';
+    snapshot.forEach(doc => {
+        const data = doc.data();
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${data.date.toDate().toLocaleDateString()}</td>
+            <td>${data.masterMasons}/${data.helpers}</td>
+            <td>${data.masterMasons + data.helpers}</td>
+            <td>$${(data.masterMasons * data.masterRate + data.helpers * data.helperRate).toFixed(2)}</td>
+            <td>${data.note || ''}</td>
+            <td> <!-- ADD THIS NEW COLUMN -->
+                <button class="delete-btn" data-id="${doc.id}">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+});
+
+    // Payment Summary Functionality
+    document.getElementById('dateRangeForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        endDate.setHours(23, 59, 59, 999);
+        
+        try {
+            const querySnapshot = await db.collection('workerLogs')
+                .where('date', '>=', firebase.firestore.Timestamp.fromDate(startDate))
+                .where('date', '<=', firebase.firestore.Timestamp.fromDate(endDate))
+                .get();
             
-            const workerData = {
-                date: firebase.firestore.Timestamp.fromDate(new Date(e.target.date.value)),
-                masterMasons: parseInt(e.target.masters.value),
-                helpers: parseInt(e.target.helpers.value),
-                masterRate: parseFloat(e.target.masterRate.value),
-                helperRate: parseFloat(e.target.helperRate.value),
-                note: e.target.note.value || null
-            };
-
-            try {
-                await db.collection('workerLogs').add(workerData);
-                e.target.reset();
-            } catch (error) {
-                console.error('Error adding document: ', error);
-            }
-        });
-
-        // Real-time updates
-        db.collection('workerLogs').onSnapshot((snapshot) => {
-            const tbody = document.getElementById('logBody');
-            tbody.innerHTML = '';
+            let totalMasters = 0;
+            let totalHelpers = 0;
+            let masterPayments = 0;
+            let helperPayments = 0;
+            const uniqueDays = new Set();
             
-            snapshot.forEach(doc => {
+            querySnapshot.forEach(doc => {
                 const data = doc.data();
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${data.date.toDate().toLocaleDateString()}</td>
-                    <td>${data.masterMasons}/${data.helpers}</td>
-                    <td>${data.masterMasons + data.helpers}</td>
-                    <td>$${(data.masterMasons * data.masterRate + data.helpers * data.helperRate).toFixed(2)}</td>
-                    <td>${data.note || ''}</td>
-                `;
-                tbody.appendChild(row);
+                const dateStr = data.date.toDate().toDateString();
+                uniqueDays.add(dateStr);
+                totalMasters += data.masterMasons;
+                totalHelpers += data.helpers;
+                masterPayments += data.masterMasons * data.masterRate;
+                helperPayments += data.helpers * data.helperRate;
             });
-        });
-    </script>
+            
+            // Update payment summary UI
+            document.getElementById('dateRange').textContent = 
+                `${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}`;
+            document.getElementById('totalDays').textContent = uniqueDays.size;
+            document.getElementById('totalMasters').textContent = totalMasters;
+            document.getElementById('totalHelpers').textContent = totalHelpers;
+            document.getElementById('totalWorkers').textContent = totalMasters + totalHelpers;
+            document.getElementById('masterPayments').textContent = `$${masterPayments.toFixed(2)}`;
+            document.getElementById('helperPayments').textContent = `$${helperPayments.toFixed(2)}`;
+            document.getElementById('totalPayment').textContent = 
+                `$${(masterPayments + helperPayments).toFixed(2)}`;
+            
+            document.getElementById('summaryResults').style.display = 'block';
+        } catch (error) {
+            console.error('Error fetching documents: ', error);
+            alert('Error generating summary. Please try again.');
+        }
+    });
+// Delete Entry Handler
+document.addEventListener('click', async (e) => {
+    if (e.target.closest('.delete-btn')) {
+        const docId = e.target.closest('.delete-btn').dataset.id;
+        const confirmDelete = confirm('Delete this entry permanently?');
+        
+        if (confirmDelete) {
+            try {
+                await db.collection('workerLogs').doc(docId).delete();
+            } catch (error) {
+                console.error('Error deleting document: ', error);
+                alert('Failed to delete entry. Please try again.');
+            }
+        }
+    }
+});
+    document.addEventListener('click', async (e) => {
+        if (e.target.closest('.delete-btn')) {
+            const docId = e.target.closest('.delete-btn').dataset.id;
+            const confirmDelete = confirm('Delete this entry permanently?');
+            
+            if (confirmDelete) {
+                try {
+                    await db.collection('workerLogs').doc(docId).delete();
+                } catch (error) {
+                    console.error('Error deleting document: ', error);
+                    alert('Failed to delete entry. Please try again.');
+                }
+            }
+        }
+    });
+</script>
 </body>
 </html>
